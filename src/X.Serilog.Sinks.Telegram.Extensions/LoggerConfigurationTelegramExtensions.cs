@@ -34,7 +34,6 @@ namespace X.Serilog.Sinks.Telegram.Extensions
                 {
                     UseEmoji = useEmoji,
                     ReadableApplicationName = readableApplicationName,
-                    Formatter = messageFormatter,
                 }
             };
 
@@ -45,7 +44,7 @@ namespace X.Serilog.Sinks.Telegram.Extensions
 
             config.Validate();
 
-            return loggerConfiguration.Sink(new TelegramSink(config),
+            return loggerConfiguration.Sink(new TelegramSink(messageFormatter, config),
                 restrictedToMinimumLevel);
         }
 
@@ -56,6 +55,7 @@ namespace X.Serilog.Sinks.Telegram.Extensions
         public static LoggerConfiguration Telegram(
             this LoggerSinkConfiguration loggerConfiguration,
             Action<TelegramSinkConfiguration> configureAction,
+            IMessageFormatter messageFormatter,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum)
         {
             if (loggerConfiguration == null)
@@ -75,7 +75,7 @@ namespace X.Serilog.Sinks.Telegram.Extensions
             config.Validate();
 
             return loggerConfiguration.Sink(
-                new TelegramSink(config),
+                new TelegramSink(messageFormatter, config),
                 restrictedToMinimumLevel);
         }
     }
