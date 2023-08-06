@@ -4,22 +4,12 @@ namespace X.Serilog.Sinks.Telegram.Formatters;
 
 public class DefaultAggregatedNotificationsFormatter : MessageFormatterBase
 {
-    public override string Format(
-        IEnumerable<LogEntry> logEntries,
+    public override string Format(ICollection<LogEntry> logEntries,
         FormatterConfiguration config,
-        Func<IEnumerable<LogEntry>, FormatterConfiguration, string> formatter = null)
+        Func<ICollection<LogEntry>, FormatterConfiguration, string> formatter = null)
     {
-        if (logEntries is null) throw new ArgumentNullException(nameof(logEntries));
-
         formatter ??= DefaultFormatter;
-
-        var message = formatter(logEntries, config);
-        if (!NotEmpty(message))
-        {
-            throw new ArgumentException(nameof(message));
-        }
-
-        return message;
+        return base.Format(logEntries, config, formatter);
     }
 
     private string DefaultFormatter(IEnumerable<LogEntry> logEntries, FormatterConfiguration config)
@@ -42,7 +32,7 @@ public class DefaultAggregatedNotificationsFormatter : MessageFormatterBase
 
             var level = config.UseEmoji ? ToEmoji(logEntry.Level) : ToString(logEntry.Level);
 
-            sb.Append("<em>[").Append($"{logEntry.UtcTimeStamp:T}").Append(' ').Append(level).Append("]</em>");
+            sb.Append(level).Append(' ').Append("<em>[").Append($"{logEntry.UtcTimeStamp:T}").Append("]</em>");
 
             if (NotEmpty(logEntry.RenderedMessage))
             {

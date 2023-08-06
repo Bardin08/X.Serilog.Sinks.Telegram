@@ -1,8 +1,6 @@
 ﻿using Serilog.Sinks.PeriodicBatching;
-
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
-
 using X.Serilog.Sinks.Telegram.Configuration;
 using X.Serilog.Sinks.Telegram.Formatters;
 
@@ -35,37 +33,34 @@ public class TelegramSinkBase : PeriodicBatchingSink
         _botClient = new TelegramBotClient(_config.Token);
     }
 
-    protected async Task SendLog<T>(IEnumerable<T> logEntries) where T: LogEntry
+    protected async Task SendLog<T>(IEnumerable<T> logEntries) where T : LogEntry
     {
-        await Task.Run(() =>
+        var messages = GetMessages((ICollection<LogEntry>)logEntries.ToList());
+        foreach (var message in messages)
         {
-            var messages = GetMessages(logEntries.ToList());
-            foreach (var message in messages)
-            {
-                _botClient.SendTextMessageAsync(_config.ChatId, message, ParseMode.Html);
-            }
-        });
+            await _botClient.SendTextMessageAsync(_config.ChatId, message, ParseMode.Html);
+        }
     }
 
-    private List<string> GetMessages(IReadOnlyCollection<LogEntry> entries)
+    private List<string> GetMessages(ICollection<LogEntry> entries)
     {
-        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+        var messages = new List<string>();
+
         switch (_config.Mode)
         {
             case LoggingMode.Logs:
-            case LoggingMode.Notifications:
-                var messages = new List<string>(entries.Count);
-                messages.AddRange(entries.Select(entry =>
-                    _messageFormatter.Format(entry, _config.FormatterConfiguration)));
-
-                return messages;
+                var formattedMessages = entries
+                    .Select(entry => _messageFormatter.Format(new[] { entry }, _config.FormatterConfiguration))
+                    .ToList();
+                messages.AddRange(formattedMessages);
+                break;
             case LoggingMode.AggregatedNotifications:
-                return new List<string>(1)
-                {
-                    _messageFormatter.Format(entries, _config.FormatterConfiguration),
-                };
+                var message = _messageFormatter
+                    .Format(entries, _config.FormatterConfiguration);
+                messages.Add(message);
+                break;
         }
 
-        return new List<string>();
+        return messages;
     }
 }
