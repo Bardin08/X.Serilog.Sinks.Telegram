@@ -35,32 +35,13 @@ public class TelegramSinkBase : PeriodicBatchingSink
 
     protected async Task SendLog<T>(IEnumerable<T> logEntries) where T : LogEntry
     {
-        var messages = GetMessages((ICollection<LogEntry>)logEntries.ToList());
+        var messages = _messageFormatter.Format(
+            logEntries.ToList() as ICollection<LogEntry>,
+            _config.FormatterConfiguration);
+
         foreach (var message in messages)
         {
             await _botClient.SendTextMessageAsync(_config.ChatId, message, ParseMode.Html);
         }
-    }
-
-    private List<string> GetMessages(ICollection<LogEntry> entries)
-    {
-        var messages = new List<string>();
-
-        switch (_config.Mode)
-        {
-            case LoggingMode.Logs:
-                var formattedMessages = entries
-                    .Select(entry => _messageFormatter.Format(new[] { entry }, _config.FormatterConfiguration))
-                    .ToList();
-                messages.AddRange(formattedMessages);
-                break;
-            case LoggingMode.AggregatedNotifications:
-                var message = _messageFormatter
-                    .Format(entries, _config.FormatterConfiguration);
-                messages.Add(message);
-                break;
-        }
-
-        return messages;
     }
 }

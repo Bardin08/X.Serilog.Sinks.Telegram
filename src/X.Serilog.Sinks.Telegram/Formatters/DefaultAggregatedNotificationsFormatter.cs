@@ -4,15 +4,15 @@ namespace X.Serilog.Sinks.Telegram.Formatters;
 
 public class DefaultAggregatedNotificationsFormatter : MessageFormatterBase
 {
-    public override string Format(ICollection<LogEntry> logEntries,
+    public override List<string> Format(ICollection<LogEntry> logEntries,
         FormatterConfiguration config,
-        Func<ICollection<LogEntry>, FormatterConfiguration, string> formatter = null)
+        Func<ICollection<LogEntry>, FormatterConfiguration, List<string>> formatter = null)
     {
         formatter ??= DefaultFormatter;
         return base.Format(logEntries, config, formatter);
     }
 
-    private string DefaultFormatter(IEnumerable<LogEntry> logEntries, FormatterConfiguration config)
+    private List<string> DefaultFormatter(IEnumerable<LogEntry> logEntries, FormatterConfiguration config)
     {
         var entries = logEntries as LogEntry[] ?? logEntries.ToArray();
 
@@ -22,7 +22,8 @@ public class DefaultAggregatedNotificationsFormatter : MessageFormatterBase
         var beginTs = logEntries.First().UtcTimeStamp;
         var endTs = logEntries.Last().UtcTimeStamp;
 
-        sb.Append("<em>[").Append($"{beginTs:G}").Append('—').Append($"{endTs:G}").Append("]</em>").Append(' ').Append(config.ReadableApplicationName)
+        sb.Append("<em>[").Append($"{beginTs:G}").Append('—').Append($"{endTs:G}").Append("]</em>").Append(' ')
+            .Append(config.ReadableApplicationName)
             .AppendLine()
             .AppendLine();
 
@@ -41,6 +42,6 @@ public class DefaultAggregatedNotificationsFormatter : MessageFormatterBase
             }
         }
 
-        return sb.ToString();
+        return new List<string> { sb.ToString() };
     }
 }

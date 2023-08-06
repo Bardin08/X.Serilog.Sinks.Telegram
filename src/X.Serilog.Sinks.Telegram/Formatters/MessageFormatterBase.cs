@@ -5,10 +5,12 @@ namespace X.Serilog.Sinks.Telegram.Formatters;
 
 public abstract class MessageFormatterBase : IMessageFormatter
 {
+    protected static readonly List<string> Empty = Enumerable.Empty<string>().ToList();
+
     /// <inheritdoc />
-    public virtual string Format(ICollection<LogEntry> logEntries,
+    public virtual List<string> Format(ICollection<LogEntry> logEntries,
         FormatterConfiguration config,
-        Func<ICollection<LogEntry>, FormatterConfiguration, string> formatter = null)
+        Func<ICollection<LogEntry>, FormatterConfiguration, List<string>> formatter = null)
     {
         if (!NotEmpty(logEntries))
         {
@@ -17,16 +19,12 @@ public abstract class MessageFormatterBase : IMessageFormatter
 
         if (formatter is null)
         {
-            return string.Empty;
+            return Empty;
         }
 
-        var message = formatter(logEntries, config);
-        if (string.IsNullOrEmpty(message))
-        {
-            throw new ArgumentException(nameof(message));
-        }
-
-        return message;
+        var messages = formatter(logEntries, config);
+        messages = messages.Where(msg => !string.IsNullOrEmpty(msg)).ToList();
+        return messages;
     }
 
     protected virtual bool NotEmpty<T>(T value)

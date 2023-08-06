@@ -7,22 +7,43 @@ internal class DefaultLogFormatter : MessageFormatterBase
     /// <inheritdoc cref="MessageFormatterBase"/>
     /// <exception cref="ArgumentNullException">Throws when the log entry is null.</exception>
     /// <exception cref="ArgumentException">Throws when, after using the formatter, the message is null, empty, or whitespace.</exception>
-    public override string Format(ICollection<LogEntry> logEntries,
+    public override List<string> Format(ICollection<LogEntry> logEntries,
         FormatterConfiguration config,
-        Func<ICollection<LogEntry>, FormatterConfiguration, string> formatter = null)
+        Func<ICollection<LogEntry>, FormatterConfiguration, List<string>> formatter = null)
     {
+        if (NotEmpty(logEntries))
+        {
+            return Empty;
+        }
+
         formatter ??= DefaultFormatter;
-        return base.Format(logEntries, config, formatter);
+
+        var logEntryWrapper = new LogEntry[1];
+        if (logEntries.Count is 1)
+        {
+            return base.Format(logEntries, config, formatter);
+        }
+
+        var formattedMessages = new List<string>();
+        foreach (var logEntry in logEntries)
+        {
+            logEntryWrapper[0] = logEntry;
+            var messages = base.Format(logEntryWrapper, config, formatter);
+            formattedMessages.AddRange(messages);
+        }
+
+        return formattedMessages;
     }
 
-    private string DefaultFormatter(ICollection<LogEntry> logEntries, FormatterConfiguration config)
+    private List<string> DefaultFormatter(ICollection<LogEntry> logEntries, FormatterConfiguration config)
     {
         if (logEntries.Count > 1)
         {
             throw new ArgumentException("Formatter supports only single element collections", nameof(logEntries));
         }
 
-        return FormatMessageInternal(logEntries.First(), config);
+        var formattedMessage = FormatMessageInternal(logEntries.First(), config);
+        return new List<string> { formattedMessage };
     }
 
     private string FormatMessageInternal(LogEntry logEntry, FormatterConfiguration config)

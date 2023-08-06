@@ -11,7 +11,7 @@ public interface IMessageFormatter
     /// <param name="config">Formatter configuration.</param>
     /// <param name="formatter">The function would be used to create a message.</param>
     /// <returns>Human-readable message.</returns>
-    string Format(ICollection<LogEntry> logEntries,
+    List<string> Format(ICollection<LogEntry> logEntries,
         FormatterConfiguration config,
-        Func<ICollection<LogEntry>, FormatterConfiguration, string> formatter = null);
+        Func<ICollection<LogEntry>, FormatterConfiguration, List<string>> formatter = null);
 }
