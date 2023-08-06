@@ -21,9 +21,9 @@ public class TelegramSink : TelegramSinkBase
 
 public class TelegramSinkBase : PeriodicBatchingSink
 {
-    private readonly IMessageFormatter _messageFormatter;
-    private readonly TelegramSinkConfiguration _config;
     private readonly ITelegramBotClient _botClient;
+    private readonly TelegramSinkConfiguration _config;
+    private readonly IMessageFormatter _messageFormatter;
 
     protected TelegramSinkBase(IMessageFormatter messageFormatter, TelegramSinkConfiguration config)
         : base(config.BatchPostingLimit, config.BatchPeriod)
@@ -41,7 +41,7 @@ public class TelegramSinkBase : PeriodicBatchingSink
 
         foreach (var message in messages)
         {
-            await _botClient.SendTextMessageAsync(_config.ChatId, message, ParseMode.Html);
+            await _botClient.SendTextMessageAsync(_config.ChatId, message, parseMode: ParseMode.Html);
         }
     }
 }
