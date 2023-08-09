@@ -11,7 +11,7 @@ using X.Serilog.Sinks.Telegram.Formatters;
 
 namespace X.Serilog.Sinks.Telegram;
 
-public class TelegramSink : ILogEventSink, IDisposable
+public class TelegramSink : ILogEventSink, IDisposable, IAsyncDisposable
 {
     private readonly BatchCycleManager _batchCycleManager;
 
@@ -38,15 +38,29 @@ public class TelegramSink : ILogEventSink, IDisposable
 
         _cancellationTokenSource = new CancellationTokenSource();
         _botClient = new TelegramBotClient(_sinkConfiguration.Token);
-        _batchCycleManager = new BatchCycleManager(batchPostingRules, executionHooks);
+        _batchCycleManager = new BatchCycleManager(sinkConfiguration, batchPostingRules, executionHooks);
 
         ExecuteLogsProcessingLoop(CancellationToken);
     }
 
     private CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
+    public async ValueTask DisposeAsync()
+    {
+        _batchCycleManager.Dispose();
+        _channelWriter.Complete();
+
+        if (_logsQueueAccessor.GetSize() >= 0)
+        {
+            await FlushAsync();
+        }
+    }
+
     public void Dispose()
     {
+        _ = Task.Run(DisposeAsync, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
     }
 
     public void Emit(LogEvent logEvent)
@@ -66,31 +80,64 @@ public class TelegramSink : ILogEventSink, IDisposable
                 await EmitBatchAsync(cancellationToken);
                 await _batchCycleManager.OnBatchProcessedAsync(cancellationToken);
             }
-        }, CancellationToken.None);
+        }, cancellationToken);
     }
 
     private async Task EmitBatchAsync(CancellationToken cancellationToken)
     {
         var batchSize = _sinkConfiguration.BatchPostingLimit;
-        var logsBatch = await _logsQueueAccessor.DequeueSeveralAsync(batchSize);
+        await EmitBatchInternalAsync(batchSize, cancellationToken);
+    }
+
+    private async Task EmitBatchInternalAsync(int batchSize, CancellationToken cancellationToken)
+    {
+        var messages = await GetMessagesFromQueueAsync(batchSize);
+        await SendMessagesAsync(cancellationToken, messages);
+    }
+
+    private async Task<IImmutableList<string>> GetMessagesFromQueueAsync(int amount)
+    {
+        var logsBatch = await _logsQueueAccessor.DequeueSeveralAsync(amount);
         var events = logsBatch.Where(log => log is not null)
             .Select(LogEntry.MapFrom)
             .ToList();
 
-        if (events.Any())
+        if (!events.Any())
         {
-            var messages = _messageFormatter.Format(
-                events,
-                _sinkConfiguration.FormatterConfiguration);
+            return ImmutableArray<string>.Empty;
+        }
 
-            foreach (var message in messages)
-            {
-                await _botClient.SendTextMessageAsync(
-                    chatId: _sinkConfiguration.ChatId,
-                    text: message,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: cancellationToken);
-            }
+        return _messageFormatter
+            .Format(events, _sinkConfiguration.FormatterConfiguration)
+            .ToImmutableList();
+    }
+
+    private async Task SendMessagesAsync(CancellationToken cancellationToken, IImmutableList<string> messages)
+    {
+        if (!messages.Any())
+        {
+            return;
+        }
+
+        foreach (var message in messages)
+        {
+            await _botClient.SendTextMessageAsync(
+                chatId: _sinkConfiguration.ChatId,
+                text: message,
+                parseMode: ParseMode.Html,
+                cancellationToken: cancellationToken);
+        }
+    }
+
+    private async Task FlushAsync()
+    {
+        var batchSize = _sinkConfiguration.BatchPostingLimit;
+        var requiredBatches = Math.Floor(_logsQueueAccessor.GetSize() / (double)batchSize);
+
+        while (requiredBatches > 0)
+        {
+            await EmitBatchInternalAsync(batchSize, CancellationToken.None);
+            requiredBatches--;
         }
     }
 }
