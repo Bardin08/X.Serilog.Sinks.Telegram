@@ -1,12 +1,19 @@
-﻿namespace X.Serilog.Sinks.Telegram.Configuration;
+﻿using X.Serilog.Sinks.Telegram.Batch;
+
+namespace X.Serilog.Sinks.Telegram.Configuration;
 
 public class TelegramSinkConfiguration
 {
-    private TimeSpan _batchPeriod = TelegramSinkDefaults.BatchPostingPeriod;
     private int _batchPostingLimit = TelegramSinkDefaults.BatchPostingLimit;
-    private string _chatId;
-    private TimeSpan _rulesCheckPeriod = TelegramSinkDefaults.RulesCheckPeriod;
-    private string _token;
+    private string _chatId = null!;
+    private string _token = null!;
+
+    public TelegramSinkConfiguration(ILogsQueueAccessor logsAccessor)
+    {
+        LogsAccessor = logsAccessor;
+    }
+
+    public ILogsQueueAccessor LogsAccessor { get; }
 
     public string Token
     {
@@ -51,38 +58,13 @@ public class TelegramSinkConfiguration
         }
     }
 
-    public TimeSpan BatchPeriod
-    {
-        get => _batchPeriod;
-        set
-        {
-            if (value <= TimeSpan.Zero)
-            {
-                throw new ArgumentException("Invalid batch period! It must be greater than TimeSpan.Zero!");
-            }
-
-            _batchPeriod = value;
-        }
-    }
-
-    public TimeSpan RuleCheckPeriod
-    {
-        get => _rulesCheckPeriod;
-        set
-        {
-            if (value <= TimeSpan.Zero)
-            {
-                throw new ArgumentException(
-                    "Invalid batch emit rules check period! It must be greater than TimeSpan.Zero!");
-            }
-
-            _rulesCheckPeriod = value;
-        }
-    }
-
-    public FormatterConfiguration FormatterConfiguration { get; set; }
-
     public LoggingMode Mode { get; set; }
+
+    public FormatterConfiguration FormatterConfiguration { get; set; } = null!;
+
+    public BatchEmittingRulesConfiguration BatchEmittingRulesConfiguration { get; set; } = null!;
+
+    public LogsFiltersConfiguration LogFiltersConfiguration { get; set; } = null!;
 
     public void Validate()
     {
