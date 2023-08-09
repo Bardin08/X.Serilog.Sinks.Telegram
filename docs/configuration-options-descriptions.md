@@ -74,7 +74,7 @@ Configuration class for applying logs filters.
 
 An enumeration that allows choosing a logical operator for combining filters.
 
-A. And: All filters have to pass.
+A. And: All filters have to pass.<br/>
 B. Or: At least one of the filters has to pass.
 
 <a name="telegramsinkdefaults"></a>
