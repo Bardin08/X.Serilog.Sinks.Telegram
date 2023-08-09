@@ -1,8 +1,12 @@
 ﻿using System.Threading;
+using X.Serilog.Sinks.Telegram.Configuration;
 
 namespace X.Serilog.Sinks.Telegram.Batch.Rules;
 
-internal class BatchSizeRule : IRule
+/// <summary>
+/// Emit logs batch when in the logs queue is not less than <see cref="TelegramSinkConfiguration.BatchPostingLimit"/> entries.
+/// </summary>
+public class BatchSizeRule : IRule
 {
     private readonly ILogsQueueAccessor _accessContext;
     private readonly int _batchSize;
@@ -15,13 +19,6 @@ internal class BatchSizeRule : IRule
 
     public Task<bool> IsPassedAsync(CancellationToken cancellationToken)
     {
-        var currentSize = _accessContext.GetSize();
-
-        Console.ForegroundColor = ConsoleColor.DarkYellow;
-        Console.WriteLine("{0}: Current queue size: {1}, BatchSize: {2}", nameof(BatchSizeRule), currentSize,
-            _batchSize);
-        Console.ResetColor();
-
         var isPass = _accessContext.GetSize() >= _batchSize;
         return Task.FromResult(isPass);
     }

@@ -1,11 +1,14 @@
 ﻿using System.Threading;
+using X.Serilog.Sinks.Telegram.Configuration;
 
 namespace X.Serilog.Sinks.Telegram.Batch.Rules;
 
+/// <summary>
+/// Emit logs batch when in the logs queue is not less than <see cref="TelegramSinkConfiguration.BatchPeriod"/> entries.
+/// </summary>
 public class OncePerTimeRule : IRule, IExecutionHook
 {
     private readonly TimeSpan _delay;
-
     private DateTime _nextExecution;
 
     public OncePerTimeRule(TimeSpan delay)
@@ -25,10 +28,6 @@ public class OncePerTimeRule : IRule, IExecutionHook
     public Task<bool> IsPassedAsync(CancellationToken cancellationToken)
     {
         var now = Now;
-
-        Console.ForegroundColor = ConsoleColor.DarkYellow;
-        Console.WriteLine("{0}: Time till next execution: {1}", nameof(OncePerTimeRule), _nextExecution - now);
-        Console.ResetColor();
 
         var isPassed = now >= _nextExecution;
         if (isPassed)

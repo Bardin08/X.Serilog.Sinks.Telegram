@@ -20,14 +20,13 @@ internal class BatchCycleManager
         _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
     }
 
-
-    public async Task WhenNextAvailableAsync(CancellationToken cancellationToken)
+    internal async Task WhenNextAvailableAsync(CancellationToken cancellationToken)
     {
         while (await _timer.WaitForNextTickAsync(cancellationToken))
         {
             var isAtLeastOneRulePassed =
-                (await Task.WhenAll(_batchPositingRules.Select(x => x.IsPassedAsync(cancellationToken))))
-                .Any(x => x);
+                (await Task.WhenAll(_batchPositingRules.Select(rule => rule.IsPassedAsync(cancellationToken))))
+                .Any(ruleResponse => ruleResponse);
 
             if (isAtLeastOneRulePassed)
             {
@@ -36,8 +35,8 @@ internal class BatchCycleManager
         }
     }
 
-    public async Task OnBatchProcessedAsync(CancellationToken cancellationToken)
+    internal async Task OnBatchProcessedAsync(CancellationToken cancellationToken)
     {
-        await Task.WhenAll(_executionHooks.Select(x => x.OnAfterExecuteAsync(cancellationToken)));
+        await Task.WhenAll(_executionHooks.Select(hook => hook.OnAfterExecuteAsync(cancellationToken)));
     }
 }
