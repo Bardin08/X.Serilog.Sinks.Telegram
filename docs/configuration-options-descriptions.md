@@ -9,8 +9,9 @@ In the context of the Telegram Sink for logging, several configuration classes a
 3. [FormatterConfiguration](#formatterconfiguration)
 4. [LoggingMode](#loggingmode)
 5. [LogsFiltersConfiguration](#logsfiltersconfiguration)
-6. [TelegramSinkDefaults](#telegramsinkdefaults)
-7. [Usage Examples](#usage-examples)
+6. [LogFiltersOperator](#logfiltersoperator)
+7. [TelegramSinkDefaults](#telegramsinkdefaults)
+8. [Usage Examples](#usage-examples)
 
 <a name="telegramsinkconfiguration"></a>
 ## TelegramSinkConfiguration
@@ -68,6 +69,14 @@ Configuration class for applying logs filters.
 | FiltersOperator | LogFiltersOperator      | Operator used for combining filters.    |
 | Filters         | IImmutableList<IFilter> | List of filters to be applied.          |
 
+<a name="logfiltersoperator"></a>
+## LogFiltersOperator
+
+An enumeration that allows choosing a logical operator for combining filters.
+
+A. And: All filters have to pass.
+B. Or: At least one of the filters has to pass.
+
 <a name="telegramsinkdefaults"></a>
 ## TelegramSinkDefaults
 
@@ -76,30 +85,52 @@ Contains the default configuration values for the Telegram Sink.
 <a name="usage-examples"></a>
 ## Usage Examples
 
-Here is an example of how to use these classes:
+Here is an example of how to configure the Telegram Sink using an extension method on the LoggerConfiguration class:
 
-```C#
-var logsAccessor = new LogsQueueAccessor();
-var telegramSinkConfiguration = new TelegramSinkConfiguration(logsAccessor)
-{
-    Token = "Your_Telegram_Token",
-    ChatId = "Your_Chat_Id",
-    BatchPostingLimit = 10,
-    Mode = LoggingMode.Logs,
-    FormatterConfiguration = new FormatterConfiguration
+```csharp
+var logger = new LoggerConfiguration()
+    .Telegram(config =>
     {
-        UseEmoji = true,
-        ReadableApplicationName = "My Application",
-        IncludeException = true,
-        IncludeProperties = true
-    },
-    // Set the rest of the properties ...
-};
+        config.Token = "your_telegram_bot_token";
+        config.ChatId = "your_chat_id";
+        config.BatchPostingLimit = 10;
+        config.Mode = LoggingMode.Logs;
+        config.FormatterConfiguration = new FormatterConfiguration
+        {
+            UseEmoji = true,
+            ReadableApplicationName = "MyTestApp",
+            IncludeException = true,
+            IncludeProperties = true
+        };
+        config.BatchEmittingRulesConfiguration = new BatchEmittingRulesConfiguration
+        {
+            // Batch Emitting rules configuration here...
+        };
+        config.LogFiltersConfiguration = new LogsFiltersConfiguration
+        {
+            ApplyLogFilters = true,
+            FiltersOperator = LogFiltersOperator.Or,
+            Filters = new List<IFilter> {
+                // Your filters here...
+            }
+        };
+    }, null, LogEventLevel.Debug)
+    .CreateLogger();
 
-// Validate the configuration
-Validate()
+logger.Information("This is a test log message");
 ```
 
-This code configures the TelegramSinkConfiguration instance and then creates a new TelegramSink instance by passing the configuration to its constructor.
-Please note that actual usage might require setting other properties on the TelegramSinkConfiguration instance as well depending upon the requirements of your logging strategy.<br/>
-**Important:** Always remember to validate the configuration towards the end, before using it to instantiate an object. This is to ensure that the provided settings are valid and appropriate for the operation of the Telegram sink.
+This code configures the TelegramSinkConfiguration instance through a delegate and an extension method. This
+provides  more fluent API and makes the configuration step more clear and straightforward. You would add further
+sinks and then create the logger from your loggerConfiguration.
+
+In this example, `new MyCustomMessageFormatter()` is used for message formatting. You should replace 
+`MyCustomMessageFormatter` with your actual implementation of the `IMessageFormatte`r or leave it `null` to use one of the 
+default one. 
+
+Also, add your own batch emitting rules and filters as per your requirements.
+Make sure to replace `your_telegram_bot_token` and `your_chat_id` with your actual Telegram bot token and chat ID.
+
+
+**Important:** Always remember to validate the configuration towards the end, before using it to instantiate an 
+object. This is to ensure that the provided settings are valid and appropriate for the operation of the Telegram sink.
