@@ -5,9 +5,9 @@ In the context of the Telegram Sink for logging, several configuration classes a
 ## Table of Contents
 
 1. [TelegramSinkConfiguration](#telegramsinkconfiguration)
-2. [BatchEmittingRulesConfiguration](#batchemittingrulesconfiguration)
-3. [FormatterConfiguration](#formatterconfiguration)
-4. [LoggingMode](#loggingmode)
+2. [LoggingMode](#loggingmode)
+3. [BatchEmittingRulesConfiguration](#batchemittingrulesconfiguration)
+4. [FormatterConfiguration](#formatterconfiguration)
 5. [LogsFiltersConfiguration](#logsfiltersconfiguration)
 6. [LogFiltersOperator](#logfiltersoperator)
 7. [TelegramSinkDefaults](#telegramsinkdefaults)
@@ -27,6 +27,14 @@ This is the primary configuration class which contains settings required for the
 | FormatterConfiguration          | FormatterConfiguration          | Configuration for formatting logs.                        |
 | BatchEmittingRulesConfiguration | BatchEmittingRulesConfiguration | Configuration for rules on emitting batches.              |
 | LogFiltersConfiguration         | LogsFiltersConfiguration        | Configuration for filtering logs.                         |
+
+<a name="loggingmode"></a>
+## LoggingMode
+
+An enumeration that allows choosing between two ways of logging.
+
+A. Logs: Log messages will be published to the specified Telegram channel.<br/>
+B. AggregatedNotifications: Messages will contain an info about all notifications which were received during a batch period or batch limit.
 
 <a name="batchemittingrulesconfiguration"></a>
 ## BatchEmittingRulesConfiguration
@@ -49,14 +57,6 @@ Settings for formatting log messages.
 | ReadableApplicationName | string | User-friendly name of the application.                        |
 | IncludeException        | bool   | Indicates whether to include exception details in the output. |
 | IncludeProperties       | bool   | Indicates whether to include property details in the output.  |
-
-<a name="loggingmode"></a>
-## LoggingMode
-
-An enumeration that allows choosing between two ways of logging.
-
-A. Logs: Log messages will be published to the specified Telegram channel.<br/>
-B. AggregatedNotifications: Messages will contain an info about all notifications which were received during a batch period or batch limit.
 
 <a name="logsfiltersconfiguration"></a>
 ## LogsFiltersConfiguration
