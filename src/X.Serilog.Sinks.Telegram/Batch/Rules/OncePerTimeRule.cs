@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using X.Serilog.Sinks.Telegram.Configuration;
+using static System.DateTime;
 
 namespace X.Serilog.Sinks.Telegram.Batch.Rules;
 
@@ -16,8 +17,6 @@ public class OncePerTimeRule : IRule, IExecutionHook
         _delay = delay;
         _nextExecution = Now + delay;
     }
-
-    private static DateTime Now => DateTime.Now;
 
     public Task OnAfterExecuteAsync(CancellationToken cancellationToken)
     {
