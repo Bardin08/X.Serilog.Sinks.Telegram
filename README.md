@@ -5,64 +5,56 @@ X.Serilog.Sinks.Telegram is a Serilog sink that write events to [Telegram](https
 [![Build status](https://ci.appveyor.com/api/projects/status/n4uj9qfuywrkdrhb/branch/main?svg=true)](https://ci.appveyor.com/project/Bardin08/x-serilog-sinks-telegram/branch/main)
 [![NuGet Badge](https://buildstats.info/nuget/X.Serilog.Sinks.Telegram)](https://www.nuget.org/packages/X.Serilog.Sinks.Telegram/)
 
-## Installation
-
-The package can be installed by NuGet manually or within one of the listed commands.
-
-```ps
-PM> Install-Package X.Serilog.Sinks.Telegram -Version 1.0.0
-```
-
-```sh
-$ dotnet add package X.Serilog.Sinks.Telegram --version 1.0.0
-```
-
 ## Documentation
 For more comprehensive and detailed documentation, please visit our [GitHub Wiki](https://github.com/Bardin08/X.Serilog.Sinks.Telegram/wiki/Overview) pages. Here, you'll find in-depth information about configuration options, usage examples, troubleshooting guides, and more to help you effectively integrate and utilize the X.Serilog.Sinks.Telegram sink in your projects.
 
+## Getting Started
 
-## Usage
+To begin using the X.Serilog.Sinks.Telegram sink, follow these steps:
 
-Check [docs](./docs) folder to find more interesting things that can be useful.
+1. **Install the Package**: You can install the sink package from NuGet using the following command:
+ ```shell
+   dotnet add package X.Serilog.Sinks.Telegram
+```
 
-### Code-Based Configuration
-The simplest configuration require [Telegram bot token](https://core.telegram.org/bots#generating-an-authentication-token) and [channel ID](https://community.jamaicans.dev/t/get-the-telegram-channel-id/427). Check the enclosed links to understand how to receive them.
-
-```cs
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Telegram(
-        token: "0000000000:0000_000000000000000000000000000000",
-        chatId: "-0000000000000")
+2. **Configure the Sink**: In your application's configuration, set up the Telegram sink with the appropriate settings. Here's an example configuration in C#:
+```c#
+var logger = new LoggerConfiguration()
+    .Telegram(config =>
+    {
+        config.Token = "your_telegram_bot_token";
+        config.ChatId = "your_chat_id";
+        config.BatchPostingLimit = 10;
+        config.Mode = LoggingMode.Logs;
+        config.FormatterConfiguration = new FormatterConfiguration
+        {
+            UseEmoji = true,
+            ReadableApplicationName = "MyTestApp",
+            IncludeException = true,
+            IncludeProperties = true
+        };
+        config.BatchEmittingRulesConfiguration = new BatchEmittingRulesConfiguration
+        {
+            // Batch Emitting rules configuration here...
+        };
+        config.LogFiltersConfiguration = new LogsFiltersConfiguration
+        {
+            ApplyLogFilters = true,
+            FiltersOperator = LogFiltersOperator.Or,
+            Filters = new List<IFilter> {
+                // Your filters here...
+            }
+        };
+    }, null, LogEventLevel.Debug)
     .CreateLogger();
 ```
 
-For more complex configuration examples please check the related wiki page or browse the examples folder.
+3. **Start Logging**: Once the sink is configured, you can start logging using Serilog as you normally would. Log events will be sent to your Telegram channel.
 
-Sink also can be configured by JSON configuration file.
-### JSON-Based Configuration
-#### *Microsoft.Extensions.Configuration* package required
-Keys and values are case-insensitive.
-
-```json
-"Serilog": {
-  "Using": [
-    "X.Serilog.Sinks.Telegram"
-  ],
-  "WriteTo": [
-    {
-      "Name": "Telegram",
-      "Args": {
-        "Token": "0000000000:0000_000000000000000000000000000000",
-        "ChatId": "-0000000000000",
-      }
-    }
-  ],
-}
-```
+For more detailed configuration options, please refer to the [Configuration Wiki](https://github.com/Bardin08/X.Serilog.Sinks.Telegram/wiki/Configuration).
 
 ## Roadmap
 Project's roadmap described at [Roadmap](./docs/roadmap.md).
 
 ## Contributing
 Feel free to add any improvements you want via pull requests. All pull requests must be linked to an issue.
-
