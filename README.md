@@ -1,6 +1,20 @@
 # X.Serilog.Sinks.Telegram
 X.Serilog.Sinks.Telegram is a Serilog sink that write events to [Telegram](https://telegram.org/) channel or chat.
 
+## Table of Contents
+
+- [X.Serilog.Sinks.Telegram](#xserilogsinkstelegram)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [Getting Started](#getting-started)
+    - [Installation](#installation)
+    - [Configuration](#configuration)
+  - [Usage](#usage)
+  - [Configuration Options](#configuration-options)
+  - [Examples](#examples)
+  - [Contributing](#contributing)
+  - [License](#license)
+
 ## Current Statuses
 [![Build status](https://ci.appveyor.com/api/projects/status/n4uj9qfuywrkdrhb/branch/main?svg=true)](https://ci.appveyor.com/project/Bardin08/x-serilog-sinks-telegram/branch/main)
 [![NuGet Badge](https://buildstats.info/nuget/X.Serilog.Sinks.Telegram)](https://www.nuget.org/packages/X.Serilog.Sinks.Telegram/)
