@@ -1,5 +1,9 @@
 # X.Serilog.Sinks.Telegram
-X.Serilog.Sinks.Telegram is a Serilog sink that write events to [Telegram](https://telegram.org/) channel or chat.
+
+[![Build status](https://ci.appveyor.com/api/projects/status/n4uj9qfuywrkdrhb/branch/main?svg=true)](https://ci.appveyor.com/project/Bardin08/x-serilog-sinks-telegram/branch/main)
+
+[![NuGet](https://img.shields.io/nuget/v/X.Serilog.Sinks.Telegram)](https://www.nuget.org/packages/X.Serilog.Sinks.Telegram)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/X.Serilog.Sinks.Telegram)](https://www.nuget.org/packages/X.Serilog.Sinks.Telegram)
 
 ## Table of Contents
 
@@ -7,31 +11,37 @@ X.Serilog.Sinks.Telegram is a Serilog sink that write events to [Telegram](https
   - [Introduction](#introduction)
   - [Features](#features)
   - [Getting Started](#getting-started)
-    - [Installation](#installation)
-    - [Configuration](#configuration)
-  - [Usage](#usage)
-  - [Configuration Options](#configuration-options)
   - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
 
-## Current Statuses
-[![Build status](https://ci.appveyor.com/api/projects/status/n4uj9qfuywrkdrhb/branch/main?svg=true)](https://ci.appveyor.com/project/Bardin08/x-serilog-sinks-telegram/branch/main)
-[![NuGet Badge](https://buildstats.info/nuget/X.Serilog.Sinks.Telegram)](https://www.nuget.org/packages/X.Serilog.Sinks.Telegram/)
+## Introduction
 
-## Documentation
-For more comprehensive and detailed documentation, please visit our [GitHub Wiki](https://github.com/Bardin08/X.Serilog.Sinks.Telegram/wiki/Overview) pages. Here, you'll find in-depth information about configuration options, usage examples, troubleshooting guides, and more to help you effectively integrate and utilize the X.Serilog.Sinks.Telegram sink in your projects.
+X.Serilog.Sinks.Telegram is an open-source Serilog sink that allows you to send log events to Telegram. It's a convenient way to integrate Telegram as a logging output, enabling you to receive important log information directly in your chat.
+
+## Features
+
+- **Real-time Logging**: The sink offers the ability to send log events to a Telegram channel in real-time, ensuring that you can stay up-to-date with your application's behavior and any issues as they arise.
+
+- **Customizable Formatting**: You have the flexibility to configure the format of log messages sent to the Telegram channel, allowing you to tailor them to your preferences and specific requirements.
+
+- **Filtering**: The sink supports filtering log events before they are dispatched to the Telegram channel, ensuring that only pertinent information is shared.
+
+- **Asynchronous Sending**: Log events are sent asynchronously to the Telegram channel, minimizing any potential impact on your application's performance.
+
+- **Easy Configuration**: Configuring the sink to work with your Telegram channel is straightforward, and you can find comprehensive information in the [Configuration Wiki](https://github.com/Bardin08/X.Serilog.Sinks.Telegram/wiki/Configuration).
 
 ## Getting Started
 
 To begin using the X.Serilog.Sinks.Telegram sink, follow these steps:
 
 1. **Install the Package**: You can install the sink package from NuGet using the following command:
- ```shell
-   dotnet add package X.Serilog.Sinks.Telegram
+```shell
+dotnet add package X.Serilog.Sinks.Telegram
 ```
 
 2. **Configure the Sink**: In your application's configuration, set up the Telegram sink with the appropriate settings. Here's an example configuration in C#:
+
 ```c#
 var logger = new LoggerConfiguration()
     .Telegram(config =>
@@ -67,8 +77,14 @@ var logger = new LoggerConfiguration()
 
 For more detailed configuration options, please refer to the [Configuration Wiki](https://github.com/Bardin08/X.Serilog.Sinks.Telegram/wiki/Configuration).
 
-## Roadmap
-Project's roadmap described at [Roadmap](./docs/roadmap.md).
+## Examples
+
+This repository includes a number of example projects that demonstrate how to use X.Serilog.Sinks.Telegram in various scenarios. These examples can be very helpful if you're just getting started or looking to use a specific feature.
+
+You can find the examples in the following location: [X.Serilog.Sinks.Telegram Examples](https://github.com/Bardin08/X.Serilog.Sinks.Telegram/tree/main/examples)
 
 ## Contributing
 Feel free to add any improvements you want via pull requests. All pull requests must be linked to an issue.
+
+## License
+This project is licensed under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)https://en.wikipedia.org/wiki/MIT_License.
