@@ -1,7 +1,5 @@
-﻿using System.Collections.Immutable;
-using Serilog;
+﻿using Serilog;
 using Serilog.Events;
-using X.Serilog.Sinks.Telegram.Batch.Rules;
 using X.Serilog.Sinks.Telegram.Configuration;
 using X.Serilog.Sinks.Telegram.Extensions;
 using X.Serilog.Sinks.Telegram.Filters.Fluent;

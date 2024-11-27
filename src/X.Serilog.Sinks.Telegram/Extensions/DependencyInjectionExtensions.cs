@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using X.Serilog.Sinks.Telegram.Batch.Rules;
 using X.Serilog.Sinks.Telegram.Configuration;
-using X.Serilog.Sinks.Telegram.Filters.Fluent;
 
 namespace X.Serilog.Sinks.Telegram.Extensions;
 
@@ -51,7 +50,7 @@ public static class DependencyInjectionExtensions
                     ApplyLogFilters = false
                 };
             },
-            messageFormatter: null!,
+            messageFormatter: null,
             restrictedToMinimumLevel: logLevel);
     }
 }
